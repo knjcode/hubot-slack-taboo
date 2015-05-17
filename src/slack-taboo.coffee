@@ -71,6 +71,13 @@ module.exports = (robot) ->
     tabooChars.push(newtaboo)
     res.send "禁止文字に「" + newtaboo + "」を追加しました"
 
+  robot.hear /^maddtaboo (.)$/, (res) ->
+    newtaboo = res.match[1]
+    diff = _.difference(hiraganaChars,tabooChars)
+    if ~diff.indexOf(newtaboo)
+      tabooChars.push(newtaboo)
+      res.send "禁止文字に「" + newtaboo + "」を追加しました"
+
   robot.hear /^reset$/, (res) ->
     tabooChars = []
     res.send "禁止文字をリセットしました"
@@ -95,12 +102,12 @@ module.exports = (robot) ->
 
       matches = []
       for token in tokens
-        unless !token['reading']
+        if token['reading']
           if tabooRegex.test jaco.katakanize token['reading']
             matches.push token
-        unless !token['pronunciation']
-          if tabooRegex.test jaco.katakanize token['reading']
-            matches.push token
+        # if token['pronunciation']
+        #   if tabooRegex.test jaco.katakanize token['reading']
+        #     matches.push token
 
       console.log "Pronunciation: " + pronun.join('')
       console.log "Reading: " + reading.join('')
@@ -111,10 +118,15 @@ module.exports = (robot) ->
         isDelete = true
 
     if isDelete
-      res.send "Delete!"
       if targetroom
         if res.message.room != targetroom
           return
+
+      res.send "Delete!"
+      if matches
+        for match in matches
+          if match['surface_form']
+            res.send match['surface_form'] + "(" + match['reading'] + ")"
 
       msgid = res.message.id
       channel = res.message.rawMessage.channel
