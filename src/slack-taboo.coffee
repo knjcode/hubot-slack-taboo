@@ -45,6 +45,19 @@ module.exports = (robot) ->
     console.log "tabooChars:" + tabooChars
     console.log "hiraganaChars:" + hiraganaChars
 
+  robot.brain.on "loaded", ->
+    # "loaded" event is called every time robot.brain changed
+    # data loading is needed only once after a reboot
+    if !loaded
+      try
+        tabooChars = JSON.parse robot.brain.get "hubot-slack-taboo-tabooChars"
+      catch error
+        robot.logger.info("JSON parse error (reason: #{error})")
+    loaded = true
+    if !tabooChars
+      tabooChars = []
+
+
     # hoges = tokenizer.tokenize("残像に口紅を")
 
     # hoges_pron_join = (hoge['pronunciation'] for hoge in hoges)
@@ -91,7 +104,6 @@ module.exports = (robot) ->
     tabooRegex = RegExp("[#{jaco.katakanize(tabooChars)}]")
 
     if tabooRegex.test jaco.katakanize res.message.text
-      #res.send "HIT!!!"
       isDelete = true
     else
       tokens = tokenizer.tokenize res.message.text
@@ -114,7 +126,6 @@ module.exports = (robot) ->
       console.log 'matches num: ' + matches.length.toString()
       console.log 'matches: ' + JSON.stringify matches
       if matches.length > 0
-        #res.send "HIT!!!"
         isDelete = true
 
     if isDelete
@@ -122,11 +133,14 @@ module.exports = (robot) ->
         if res.message.room != targetroom
           return
 
-      res.send "Delete!"
       if matches
+        msgs = []
         for match in matches
           if match['surface_form']
-            res.send match['surface_form'] + "(" + match['reading'] + ")"
+            msgs.push match['surface_form'] + "(" + match['reading'] + ")"
+        res.send "Delete! " + msgs.join()
+      else
+        res.send "Delete!"
 
       msgid = res.message.id
       channel = res.message.rawMessage.channel
