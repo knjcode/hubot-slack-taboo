@@ -6,6 +6,7 @@
 #   HUBOT_SLACK_TABOO_CHANNEL  - Target channel
 #             (default. taboo_exp)
 #   HUBOT_SLACK_TABOO_DURATION - Duration to reap in seconds (default. 5)
+#   HUBOT_SLACK_TABOO_MECABDIC - Set dir as a system dicdir
 #
 # Commands:
 #   N/A
@@ -19,10 +20,13 @@
 _ = require 'lodash'
 jaco = require 'jaco'
 kuromoji = require 'kuromoji'
+Mecab = require 'mecab-async'
+mecab = new Mecab()
 
 apitoken = process.env.SLACK_API_TOKEN
 targetroom = process.env.HUBOT_SLACK_TABOO_CHANNEL ? "taboo_exp"
 duration = process.env.HUBOT_SLACK_TABOO_DURATION ? 5
+mecabdic = process.env.HUBOT_SLACK_TABOO_MECABDIC ? ""
 
 tokenizer = null
 
@@ -32,18 +36,27 @@ hiraganaChars = []
 for i in [12353..12435]
   hiraganaChars.push String.fromCharCode(i)
 
-commands = ['taboo', 'addtaboo', 'reset']
+commands = ['taboo', 'addtaboo', 'maddtaboo', 'reset']
 
 module.exports = (robot) ->
 
-  DIC_URL = __dirname + "/dict/"
-  robot.logger.info "DIC_URL:" + DIC_URL
+  # DIC_URL = __dirname + "/dict/"
+  # robot.logger.info "DIC_URL:" + DIC_URL
 
-  kuromoji.builder({ dicPath: DIC_URL }).build (err, _tokenizer) ->
-    tokenizer = _tokenizer
-    console.log "tokenizer ready"
-    console.log "tabooChars:" + tabooChars
-    console.log "hiraganaChars:" + hiraganaChars
+  # kuromoji.builder({ dicPath: DIC_URL }).build (err, _tokenizer) ->
+  #   tokenizer = _tokenizer
+  #   console.log "tokenizer ready"
+  #   console.log "tabooChars:" + tabooChars
+  #   console.log "hiraganaChars:" + hiraganaChars
+
+  if mecabdic
+    Mecab.command = "mecab -d " + mecabdic
+    console.log "Mecab command: " + Mecab.command
+
+  # tokens = mecab.parseSync "中居正広の金曜日のスマたちへ"
+  # for token in tokens
+  #   console.log token[7]
+
 
   robot.brain.on "loaded", ->
     # "loaded" event is called every time robot.brain changed
@@ -106,22 +119,25 @@ module.exports = (robot) ->
     if tabooRegex.test jaco.katakanize res.message.text
       isDelete = true
     else
-      tokens = tokenizer.tokenize res.message.text
-      console.log "tokens:" + JSON.stringify tokens
+      # tokens = tokenizer.tokenize res.message.text
+      # console.log "tokens:" + JSON.stringify tokens
 
-      pronun = (token['pronunciation'] for token in tokens)
-      reading = (token['reading'] for token in tokens)
+      # pronun = (token['pronunciation'] for token in tokens)
+      # reading = (token['reading'] for token in tokens)
+      tokens = mecab.parseSync res.message.text
+      # console.log tokens
+      reading = (token[8] for token in tokens)
 
       matches = []
       for token in tokens
-        if token['reading']
-          if tabooRegex.test jaco.katakanize token['reading']
+        if token[8]
+          if tabooRegex.test jaco.katakanize token[8]
             matches.push token
         # if token['pronunciation']
         #   if tabooRegex.test jaco.katakanize token['reading']
         #     matches.push token
 
-      console.log "Pronunciation: " + pronun.join('')
+      # console.log "Pronunciation: " + pronun.join('')
       console.log "Reading: " + reading.join('')
       console.log 'matches num: ' + matches.length.toString()
       console.log 'matches: ' + JSON.stringify matches
@@ -136,8 +152,8 @@ module.exports = (robot) ->
       if matches
         msgs = []
         for match in matches
-          if match['surface_form']
-            msgs.push match['surface_form'] + "(" + match['reading'] + ")"
+          if match[8]
+            msgs.push match[0] + "(" + match[8] + ")"
         res.send "Delete! " + msgs.join()
       else
         res.send "Delete!"

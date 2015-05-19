@@ -19,7 +19,8 @@
     "coffee-script": "^1.9.0",
     "jaco": "^1.2.0",
     "kuromoji": "0.0.2",
-    "lodash": "^3.8.0"
+    "lodash": "^3.8.0",
+    "mecab-async": "^0.1.0"
   },
   "devDependencies": {
     "boolify-string": "^0.1.0",
