@@ -26,7 +26,7 @@ mecab = new Mecab()
 apitoken = process.env.SLACK_API_TOKEN
 targetroom = process.env.HUBOT_SLACK_TABOO_CHANNEL ? "taboo_exp"
 duration = process.env.HUBOT_SLACK_TABOO_DURATION ? 5
-mecabdic = process.env.HUBOT_SLACK_TABOO_MECABDIC ? ""
+mecabdic = process.env.HUBOT_SLACK_TABOO_MECABDIC
 
 # tokenizer = null
 
