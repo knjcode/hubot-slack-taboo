@@ -19,16 +19,13 @@
 
 _ = require 'lodash'
 jaco = require 'jaco'
-# kuromoji = require 'kuromoji'
 Mecab = require 'mecab-async'
 mecab = new Mecab()
 
 apitoken = process.env.SLACK_API_TOKEN
 targetroom = process.env.HUBOT_SLACK_TABOO_CHANNEL ? "taboo_exp"
-duration = process.env.HUBOT_SLACK_TABOO_DURATION ? 5
+duration = process.env.HUBOT_SLACK_TABOO_DURATION ? 3
 mecabdic = process.env.HUBOT_SLACK_TABOO_MECABDIC
-
-# tokenizer = null
 
 tabooChars = []
 
@@ -39,24 +36,6 @@ for i in [12353..12435]
 commands = ['taboo', 'addtaboo', 'maddtaboo', 'reset']
 
 module.exports = (robot) ->
-
-  # DIC_URL = __dirname + "/dict/"
-  # robot.logger.info "DIC_URL:" + DIC_URL
-
-  # kuromoji.builder({ dicPath: DIC_URL }).build (err, _tokenizer) ->
-  #   tokenizer = _tokenizer
-  #   console.log "tokenizer ready"
-  #   console.log "tabooChars:" + tabooChars
-  #   console.log "hiraganaChars:" + hiraganaChars
-
-  # if mecabdic
-  #   Mecab.command = "mecab -d " + mecabdic
-  #   console.log "Mecab command: " + Mecab.command
-
-  # tokens = mecab.parseSync "中居正広の金曜日のスマたちへ"
-  # for token in tokens
-  #   console.log token[7]
-
 
   robot.brain.on "loaded", ->
     # "loaded" event is called every time robot.brain changed
@@ -69,19 +48,6 @@ module.exports = (robot) ->
     loaded = true
     if !tabooChars
       tabooChars = []
-
-
-    # hoges = tokenizer.tokenize("残像に口紅を")
-
-    # hoges_pron_join = (hoge['pronunciation'] for hoge in hoges)
-    # console.log hoges_pron_join.join('')
-
-    # hoges_reading_join = (hoge['reading'] for hoge in hoges)
-    # console.log hoges_reading_join.join('')
-  addTabooChars = (chars) ->
-    console.log 'addtabooChars'
-
-#HIRAGANA_CHARS: '\\u3041-\\u3096\\u309D-\\u309F'
 
   robot.hear /^taboo$/, (res) ->
     msgs = ["禁止文字数：" + tabooChars.length.toString()]
@@ -99,7 +65,6 @@ module.exports = (robot) ->
   robot.hear /^addtaboo$/, (res) ->
     diff = _.difference(hiraganaChars,tabooChars)
     newtaboo = diff[Math.floor(Math.random() * diff.length)]
-    #tabooChars.push(newtaboo)
     addTaboo(newtaboo)
     res.send "禁止文字に「" + newtaboo + "」を追加しました"
 
@@ -107,7 +72,6 @@ module.exports = (robot) ->
     newtaboo = res.match[1]
     diff = _.difference(hiraganaChars,tabooChars)
     if ~diff.indexOf(newtaboo)
-      #tabooChars.push(newtaboo)
       addTaboo(newtaboo)
       res.send "禁止文字に「" + newtaboo + "」を追加しました"
 
@@ -126,11 +90,6 @@ module.exports = (robot) ->
     if tabooRegex.test jaco.katakanize res.message.text
       isDelete = true
     else
-      # tokens = tokenizer.tokenize res.message.text
-      # console.log "tokens:" + JSON.stringify tokens
-
-      # pronun = (token['pronunciation'] for token in tokens)
-      # readings = (token['reading'] for token in tokens)
       console.log "text: " + res.message.text
       tokens = mecab.parseSync res.message.text
       console.log tokens
@@ -141,14 +100,11 @@ module.exports = (robot) ->
         if token[8]
           if tabooRegex.test jaco.katakanize token[8]
             matches.push token
-        # if token['pronunciation']
-        #   if tabooRegex.test jaco.katakanize token['reading']
-        #     matches.push token
 
-      # console.log "Pronunciation: " + pronun.join('')
       console.log "Reading: " + readings.join('')
       console.log 'matches num: ' + matches.length.toString()
       console.log 'matches: ' + JSON.stringify matches
+
       if matches.length > 0
         isDelete = true
 
