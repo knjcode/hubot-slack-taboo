@@ -92,17 +92,23 @@ module.exports = (robot) ->
       msgs.push  "使用可能文字：" + diff
     res.send msgs.join("\n")
 
+  addTaboo = (tabooChar) ->
+    tabooChars.push(tabooChar)
+    robot.brain.set JSON.stringify tabooChars
+
   robot.hear /^addtaboo$/, (res) ->
     diff = _.difference(hiraganaChars,tabooChars)
     newtaboo = diff[Math.floor(Math.random() * diff.length)]
-    tabooChars.push(newtaboo)
+    #tabooChars.push(newtaboo)
+    addTaboo(newtaboo)
     res.send "禁止文字に「" + newtaboo + "」を追加しました"
 
   robot.hear /^maddtaboo (.)$/, (res) ->
     newtaboo = res.match[1]
     diff = _.difference(hiraganaChars,tabooChars)
     if ~diff.indexOf(newtaboo)
-      tabooChars.push(newtaboo)
+      #tabooChars.push(newtaboo)
+      addTaboo(newtaboo)
       res.send "禁止文字に「" + newtaboo + "」を追加しました"
 
   robot.hear /^reset$/, (res) ->
