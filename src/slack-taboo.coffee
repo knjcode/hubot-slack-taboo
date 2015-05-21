@@ -130,11 +130,11 @@ module.exports = (robot) ->
       # console.log "tokens:" + JSON.stringify tokens
 
       # pronun = (token['pronunciation'] for token in tokens)
-      # reading = (token['reading'] for token in tokens)
+      # readings = (token['reading'] for token in tokens)
       console.log "text: " + res.message.text
-      tokens = mecab.parseSync(res.message.text)
+      tokens = mecab.parseSync res.message.text
       console.log tokens
-      reading = (token[8] for token in tokens)
+      readings = (token[8] for token in tokens)
 
       matches = []
       for token in tokens
@@ -146,7 +146,7 @@ module.exports = (robot) ->
         #     matches.push token
 
       # console.log "Pronunciation: " + pronun.join('')
-      console.log "Reading: " + reading.join('')
+      console.log "Reading: " + readings.join('')
       console.log 'matches num: ' + matches.length.toString()
       console.log 'matches: ' + JSON.stringify matches
       if matches.length > 0
