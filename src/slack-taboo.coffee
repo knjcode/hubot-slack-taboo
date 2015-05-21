@@ -37,9 +37,9 @@ commands = ['taboo', 'addtaboo', 'maddtaboo', 'reset']
 
 module.exports = (robot) ->
 
-   if mecabdic
-     Mecab.command = "mecab -d " + mecabdic
-     console.log "Mecab command: " + Mecab.command
+  if mecabdic
+    Mecab.command = "mecab -d " + mecabdic
+    console.log "Mecab command: " + Mecab.command
 
   robot.brain.on "loaded", ->
     # "loaded" event is called every time robot.brain changed
