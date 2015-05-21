@@ -94,7 +94,6 @@ module.exports = (robot) ->
     if tabooRegex.test jaco.katakanize res.message.text
       isDelete = true
     else
-      console.log "text: " + res.message.text
       tokens = mecab.parseSync res.message.text
       console.log tokens
       readings = (token[8] for token in tokens)
