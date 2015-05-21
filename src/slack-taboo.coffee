@@ -28,7 +28,7 @@ targetroom = process.env.HUBOT_SLACK_TABOO_CHANNEL ? "taboo_exp"
 duration = process.env.HUBOT_SLACK_TABOO_DURATION ? 5
 mecabdic = process.env.HUBOT_SLACK_TABOO_MECABDIC ? ""
 
-tokenizer = null
+# tokenizer = null
 
 tabooChars = []
 
@@ -84,11 +84,12 @@ module.exports = (robot) ->
 #HIRAGANA_CHARS: '\\u3041-\\u3096\\u309D-\\u309F'
 
   robot.hear /^taboo$/, (res) ->
-    msgs = [
-      "禁止文字数：" + tabooChars.length.toString(),
-      "禁止文字：" + tabooChars,
-      "使用可能文字：" + _.difference(hiraganaChars,tabooChars)
-    ]
+    msgs = ["禁止文字数：" + tabooChars.length.toString()]
+    diff = _.difference(hiraganaChars,tabooChars)
+    if tabooChars.length < diff.length
+      msgs.push "禁止文字：" + tabooChars
+    else
+      msgs.push  "使用可能文字：" + diff
     res.send msgs.join("\n")
 
   robot.hear /^addtaboo$/, (res) ->
