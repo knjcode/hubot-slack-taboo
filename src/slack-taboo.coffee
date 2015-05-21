@@ -94,7 +94,7 @@ module.exports = (robot) ->
 
   addTaboo = (tabooChar) ->
     tabooChars.push(tabooChar)
-    robot.brain.set JSON.stringify tabooChars
+    robot.brain.set "hubot-slack-taboo-tabooChars", JSON.stringify tabooChars
 
   robot.hear /^addtaboo$/, (res) ->
     diff = _.difference(hiraganaChars,tabooChars)
