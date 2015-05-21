@@ -19,7 +19,7 @@
 
 _ = require 'lodash'
 jaco = require 'jaco'
-kuromoji = require 'kuromoji'
+# kuromoji = require 'kuromoji'
 Mecab = require 'mecab-async'
 mecab = new Mecab()
 
@@ -49,9 +49,9 @@ module.exports = (robot) ->
   #   console.log "tabooChars:" + tabooChars
   #   console.log "hiraganaChars:" + hiraganaChars
 
-  if mecabdic
-    Mecab.command = "mecab -d " + mecabdic
-    console.log "Mecab command: " + Mecab.command
+  # if mecabdic
+  #   Mecab.command = "mecab -d " + mecabdic
+  #   console.log "Mecab command: " + Mecab.command
 
   # tokens = mecab.parseSync "中居正広の金曜日のスマたちへ"
   # for token in tokens
@@ -131,7 +131,7 @@ module.exports = (robot) ->
 
       # pronun = (token['pronunciation'] for token in tokens)
       # reading = (token['reading'] for token in tokens)
-      #console.log res.message.text
+      console.log "text: " + res.message.text
       tokens = mecab.parseSync(res.message.text)
       console.log tokens
       reading = (token[8] for token in tokens)
