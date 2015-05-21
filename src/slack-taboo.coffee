@@ -131,6 +131,7 @@ module.exports = (robot) ->
 
       # pronun = (token['pronunciation'] for token in tokens)
       # reading = (token['reading'] for token in tokens)
+      #console.log res.message.text
       tokens = mecab.parseSync(res.message.text)
       console.log tokens
       reading = (token[8] for token in tokens)
