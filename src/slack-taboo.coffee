@@ -96,12 +96,15 @@ module.exports = (robot) ->
     else
       tokens = mecab.parseSync res.message.text
       console.log tokens
-      readings = (token[8] for token in tokens)
+      #readings = (token[8] for token in tokens)
+      readings = (token[1].split('\t')[0] for token in tokens)
 
       matches = []
       for token in tokens
-        if token[8]
-          if tabooRegex.test jaco.katakanize token[8]
+        #if token[8]
+        if t = token[1].split('\t')[0]
+          #if tabooRegex.test jaco.katakanize token[8]
+          if tabooRegex.test jaco.katakanize t
             matches.push token
 
       console.log "Reading: " + readings.join('')
@@ -119,8 +122,10 @@ module.exports = (robot) ->
       if matches
         msgs = []
         for match in matches
-          if match[8]
-            msgs.push match[0] + "(" + match[8] + ")"
+          #if match[8]
+          if match[1].split('\t')[0]
+            #msgs.push match[0] + "(" + match[8] + ")"
+            msgs.push match[0] + "(" + match[1].split('\t')[0] + ")"
         res.send "Delete! " + msgs.join()
       else
         res.send "Delete!"
